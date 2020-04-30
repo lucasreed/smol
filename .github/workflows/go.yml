@@ -3,7 +3,7 @@ on: [push]
 jobs:
 
   build:
-    name: Build
+    name: Test & Build
     runs-on: ubuntu-latest
     steps:
 
@@ -23,6 +23,8 @@ jobs:
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
             dep ensure
         fi
+    - name: Test
+      run: go test ./pkg/...
 
     - name: Build
       run: go build -ldflags "-s -w" -v ./cmd/smolserv/
