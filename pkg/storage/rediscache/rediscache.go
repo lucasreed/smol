@@ -59,6 +59,10 @@ func (s *Store) Open() error {
 	return nil
 }
 
+func (s *Store) Close() error {
+	return s.Pool.Close()
+}
+
 func (s *Store) Health() bool {
 	conn := s.Pool.Get()
 	data, err := redis.String(conn.Do("PING"))
@@ -66,10 +70,6 @@ func (s *Store) Health() bool {
 		return false
 	}
 	return true
-}
-
-func (s *Store) Close() error {
-	return s.Pool.Close()
 }
 
 func (s *Store) GetURL(shortCode string) (models.URL, error) {

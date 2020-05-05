@@ -21,6 +21,7 @@ import (
 type StorageReader interface {
 	GetURL(shortCode string) (models.URL, error)
 	GetShortCode(destination string) (string, error)
+	Health() bool
 }
 
 type StorageWriter interface {

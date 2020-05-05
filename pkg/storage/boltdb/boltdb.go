@@ -16,6 +16,7 @@ package boltdb
 
 import (
 	"fmt"
+	"os"
 
 	bolt "go.etcd.io/bbolt"
 
@@ -62,8 +63,15 @@ func (s *Store) Close() error {
 	return s.DB.Close()
 }
 
+func (s *Store) Health() bool {
+	if _, err := os.Stat(s.Path); os.IsNotExist(err) {
+		return false
+	}
+	return s.DB != nil
+}
+
 func (s *Store) GetURL(shortCode string) (models.URL, error) {
-	data, err := getValue(s.DB, shortCode)
+	data, err := s.getValue(shortCode)
 	if err != nil {
 		return models.URL{}, err
 	}
@@ -71,7 +79,7 @@ func (s *Store) GetURL(shortCode string) (models.URL, error) {
 }
 
 func (s *Store) GetShortCode(destination string) (string, error) {
-	return getValue(s.DB, destination)
+	return s.getValue(destination)
 }
 
 func (s *Store) SetURL(shortCode, url string) error {
@@ -87,9 +95,9 @@ func (s *Store) SetURL(shortCode, url string) error {
 	})
 }
 
-func getValue(db *bolt.DB, key string) (string, error) {
+func (s *Store) getValue(key string) (string, error) {
 	var value string
-	err := db.View(func(tx *bolt.Tx) error {
+	err := s.DB.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketName))
 		val := b.Get([]byte(key))
 		value = string(val)

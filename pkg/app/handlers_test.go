@@ -37,6 +37,10 @@ func (s *storage) Close() error {
 	return nil
 }
 
+func (s *storage) Health() bool {
+	return true
+}
+
 func (s *storage) GetURL(shortCode string) (models.URL, error) {
 	if dest, ok := s.data[shortCode]; ok {
 		return models.URL{Destination: dest, ShortCode: shortCode}, nil
