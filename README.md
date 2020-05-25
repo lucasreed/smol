@@ -1,4 +1,4 @@
-![Go Build Workflow](https://github.com/lucasreed/smol/workflows/Go%20Build/badge.svg)
+![Go Test Workflow](https://github.com/lucasreed/smol/workflows/go%20test%20%26%20lint/badge.svg)
 # Smol
 
 Take urls and make them [smol](https://www.urbandictionary.com/define.php?term=Smol).

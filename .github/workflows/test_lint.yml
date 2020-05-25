@@ -1,5 +1,8 @@
 name: go test & lint
-on: [push]
+on:
+  push:
+    tags-ignore:
+      - "*"
 jobs:
 
   test_lint:
