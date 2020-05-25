@@ -20,4 +20,5 @@ import (
 
 func versionedApiRoutes(versionRouter *mux.Router, s *Server) {
 	versionRouter.HandleFunc("/add", logHandler(s.handleAdd)).Methods("POST")
+	versionRouter.HandleFunc("/{shortCode}", logHandler(s.handleDelete)).Methods("DELETE")
 }

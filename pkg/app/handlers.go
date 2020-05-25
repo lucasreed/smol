@@ -61,9 +61,9 @@ func (s *Server) handleAdd(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(urlModel.Destination) == 0 {
-		log.Println("url field not provided")
+		log.Println("destination field not provided")
 		w.WriteHeader(http.StatusBadRequest)
-		_, err := w.Write([]byte("url field not provided"))
+		_, err = w.Write([]byte("destination field not provided"))
 		if err != nil {
 			log.Printf("ERROR: %v", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -75,7 +75,7 @@ func (s *Server) handleAdd(w http.ResponseWriter, r *http.Request) {
 		message := fmt.Sprintf("url is not valid: %s", urlModel.Destination)
 		log.Println(message)
 		w.WriteHeader(http.StatusBadRequest)
-		_, err := w.Write([]byte(message))
+		_, err = w.Write([]byte(message))
 		if err != nil {
 			log.Printf("ERROR: %v", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -87,7 +87,7 @@ func (s *Server) handleAdd(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusFound)
 		message := fmt.Sprintf("This url is already registered: %s -> %s", p, urlModel.Destination)
 		log.Println(message)
-		_, err := w.Write([]byte(message))
+		_, err = w.Write([]byte(message))
 		if err != nil {
 			log.Printf("ERROR: %v", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -103,7 +103,7 @@ func (s *Server) handleAdd(w http.ResponseWriter, r *http.Request) {
 		}
 		if i == 2 {
 			w.WriteHeader(http.StatusInternalServerError)
-			_, err := w.Write([]byte("Error creating a shortCode path"))
+			_, err = w.Write([]byte("error creating a shortCode path"))
 			if err != nil {
 				log.Printf("ERROR: %v", err)
 				w.WriteHeader(http.StatusInternalServerError)
@@ -134,9 +134,9 @@ func (s *Server) handleShortCode(w http.ResponseWriter, r *http.Request) {
 	shortCode := vars["shortCode"]
 	url, err := s.Storage.GetURL(shortCode)
 	if err != nil {
-		log.Printf("this shortcode does not exist: %s\n", shortCode)
+		log.Printf("error finding shortcode, maybe it does not exist: %s\n", shortCode)
 		w.WriteHeader(http.StatusNotFound)
-		_, innerErr := w.Write([]byte("this shortcode does not exist: " + shortCode))
+		_, innerErr := w.Write([]byte("error finding shortcode, maybe it does not exist: " + shortCode))
 		if innerErr != nil {
 			log.Printf("ERROR: %v", innerErr)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -149,9 +149,36 @@ func (s *Server) handleShortCode(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// func handleDelete(w http.ResponseWriter, r *http.Request) {
-//
-// }
+func (s *Server) handleDelete(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	shortCode := vars["shortCode"]
+	if exists := s.pathRegistered(shortCode); !exists {
+		w.WriteHeader(http.StatusNotFound)
+		message := fmt.Sprintf("This short code is not registered: %s", shortCode)
+		log.Println(message)
+		_, err := w.Write([]byte(message))
+		if err != nil {
+			log.Printf("ERROR: %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+	err := s.Storage.Delete(shortCode)
+	if err != nil {
+		log.Printf("error deleting shortcode: %s\n", shortCode)
+		w.WriteHeader(http.StatusNotFound)
+		_, innerErr := w.Write([]byte("error deleting shortcode: " + shortCode))
+		if innerErr != nil {
+			log.Printf("ERROR: %v", innerErr)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+	w.WriteHeader(http.StatusAccepted)
+	log.Printf("Deleted shortcode: %s\n", shortCode)
+}
 
 func (s *Server) urlRegistered(url string) (string, bool) {
 	data, err := s.Storage.GetShortCode(url)

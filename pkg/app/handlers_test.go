@@ -60,6 +60,11 @@ func (s *storage) SetURL(shortCode, url string) error {
 	return nil
 }
 
+func (s *storage) Delete(shortCode string) error {
+	delete(s.data, shortCode)
+	return nil
+}
+
 var testStorage = storage{
 	data: map[string]string{
 		"abcd123":            "https://google.com",

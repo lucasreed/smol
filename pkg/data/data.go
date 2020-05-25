@@ -28,6 +28,7 @@ type StorageWriter interface {
 	Open() error
 	Close() error
 	SetURL(shortCode, url string) error
+	Delete(shortCode string) error
 }
 
 type StorageReadWrite interface {

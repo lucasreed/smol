@@ -73,8 +73,7 @@ func (s *Store) Health() bool {
 }
 
 func (s *Store) GetURL(shortCode string) (models.URL, error) {
-	conn := s.Pool.Get()
-	data, err := getValue(conn, shortCode)
+	data, err := s.getValue(shortCode)
 	if err != nil {
 		return models.URL{}, err
 	}
@@ -82,8 +81,7 @@ func (s *Store) GetURL(shortCode string) (models.URL, error) {
 }
 
 func (s *Store) GetShortCode(destination string) (string, error) {
-	conn := s.Pool.Get()
-	return getValue(conn, destination)
+	return s.getValue(destination)
 }
 
 func (s *Store) SetURL(shortCode, url string) error {
@@ -103,7 +101,25 @@ func (s *Store) SetURL(shortCode, url string) error {
 	return nil
 }
 
-func getValue(conn redis.Conn, key string) (string, error) {
+func (s *Store) Delete(shortCode string) error {
+	destination, err := s.getValue(shortCode)
+	if err != nil {
+		return err
+	}
+	conn := s.Pool.Get()
+	err = conn.Send("DEL", shortCode, destination)
+	if err != nil {
+		return err
+	}
+	err = conn.Flush()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Store) getValue(key string) (string, error) {
+	conn := s.Pool.Get()
 	data, err := redis.String(conn.Do("GET", key))
 	if err != nil {
 		return "", err

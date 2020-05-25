@@ -95,6 +95,23 @@ func (s *Store) SetURL(shortCode, url string) error {
 	})
 }
 
+func (s *Store) Delete(shortCode string) error {
+	destination, err := s.getValue(shortCode)
+	if err != nil {
+		return err
+	}
+	return s.DB.Batch(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(bucketName))
+		if err = b.Delete([]byte(shortCode)); err != nil {
+			return err
+		}
+		if err = b.Delete([]byte(destination)); err != nil {
+			return err
+		}
+		return nil
+	})
+}
+
 func (s *Store) getValue(key string) (string, error) {
 	var value string
 	err := s.DB.View(func(tx *bolt.Tx) error {
