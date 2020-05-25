@@ -25,7 +25,7 @@ serve:
 	./smolserv --storage ${SMOL_STORAGE}
 
 build:
-	go build -ldflags "-X main.version=$(VERSION) -X main.versionCommit=$(COMMIT) -s -w" -v -o smolserv ./cmd/smolserv/
+	go build -ldflags "-X main.version=$(VERSION) -X main.commit=$(COMMIT) -s -w" -v -o smolserv ./cmd/smolserv/
 
 redis:
 	docker run --name ${REDIS_NAME} -d -p 6379:6379 redis:5.0.7-buster

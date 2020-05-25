@@ -27,14 +27,14 @@ import (
 )
 
 var (
-	boltdbPath    string
-	listen        string
-	listenPort    string
-	redisHost     string
-	redisPort     string
-	storageType   string
-	version       = "development"
-	versionCommit = "n/a"
+	boltdbPath  string
+	listen      string
+	listenPort  string
+	redisHost   string
+	redisPort   string
+	storageType string
+	version     = "development"
+	commit      = "n/a"
 )
 
 func init() {
@@ -66,7 +66,7 @@ var versionCmd = &cobra.Command{
 	Short: "Prints the current version of the tool.",
 	Long:  `Prints the current version.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Version:" + version + " Commit:" + versionCommit)
+		fmt.Println("Version:" + version + " Commit:" + commit)
 	},
 }
 
