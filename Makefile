@@ -4,6 +4,8 @@ SMOL_IMAGE ?= smol
 SMOL_TAG ?= latest
 SMOL_DOCKER_FULL ?= ${SMOL_IMAGE}:${SMOL_TAG}
 SMOL_STORAGE ?= boltdb
+COMMIT := $(shell git rev-parse HEAD)
+VERSION := "development"
 
 all: lint test build
 
@@ -16,14 +18,14 @@ docker: docker-build docker-run
 lint:
 	-golangci-lint run ./...
 
+test: lint
+	go test -v ./...
+
 serve:
 	./smolserv --storage ${SMOL_STORAGE}
 
 build:
-	go build -ldflags "-s -w" -o smolserv ./cmd/smolserv/
-
-test:
-	go test ./...
+	go build -ldflags "-X main.version=$(VERSION) -X main.versionCommit=$(COMMIT) -s -w" -v -o smolserv ./cmd/smolserv/
 
 redis:
 	docker run --name ${REDIS_NAME} -d -p 6379:6379 redis:5.0.7-buster
