@@ -60,9 +60,9 @@ jobs:
       uses: machine-learning-apps/gpr-docker-publish@master
       id: docker
       with:
-        IMAGE_NAME: 'smol'
-        DOCKERFILE_PATH: 'smol/Dockerfile'
-        BUILD_CONTEXT: 'smol/'
+        IMAGE_NAME: 'smolserv'
+        DOCKERFILE_PATH: 'Dockerfile'
+        BUILD_CONTEXT: '.'
         tag: ${GITHUB_REF##*/}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
