@@ -39,6 +39,7 @@ jobs:
     - name: debug
       run: |
         ls -l
+        pwd
         echo "workspace is: ${GITHUB_WORKSPACE}"
 
     - name: Publish Docker Image to GPR
@@ -46,8 +47,8 @@ jobs:
       id: docker
       with:
         IMAGE_NAME: 'smolserv'
-        DOCKERFILE_PATH: '${GITHUB_WORKSPACE}/smol/Dockerfile'
-        BUILD_CONTEXT: '${GITHUB_WORKSPACE}/smol/'
+        DOCKERFILE_PATH: 'Dockerfile'
+        BUILD_CONTEXT: '.'
         branch_tag: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
