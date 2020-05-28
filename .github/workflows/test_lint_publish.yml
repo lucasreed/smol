@@ -6,7 +6,6 @@ on:
     tags-ignore:
       - "*"
 jobs:
-
   test_lint:
     name: test & lint
     runs-on: ubuntu-latest
@@ -31,6 +30,7 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
+    needs: test_lint
     steps:
 
     - name: Copy Repo Files
@@ -41,8 +41,8 @@ jobs:
       id: docker
       with:
         IMAGE_NAME: 'smol'
-        DOCKERFILE_PATH: 'Dockerfile'
-        BUILD_CONTEXT: '/'
+        DOCKERFILE_PATH: 'smol/Dockerfile'
+        BUILD_CONTEXT: 'smol/'
         branch_tag: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -51,6 +51,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   publish:
+    needs: test_lint
     runs-on: ubuntu-latest
     steps:
 
@@ -62,8 +63,8 @@ jobs:
       id: docker
       with:
         IMAGE_NAME: 'smol'
-        DOCKERFILE_PATH: 'Dockerfile'
-        BUILD_CONTEXT: '/'
+        DOCKERFILE_PATH: 'smol/Dockerfile'
+        BUILD_CONTEXT: 'smol/'
         tag: ${GITHUB_REF##*/}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
