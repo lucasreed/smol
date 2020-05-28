@@ -37,12 +37,12 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Publish Docker Image to GPR
-      uses: machine-learning-apps/gpr-docker-publish@v1.3
+      uses: machine-learning-apps/gpr-docker-publish@master
       id: docker
       with:
-        IMAGE_NAME: 'smol'
-        DOCKERFILE_PATH: '${GITHUB_WORKSPACE}/smol/Dockerfile'
-        BUILD_CONTEXT: '${GITHUB_WORKSPACE}/smol/'
+        IMAGE_NAME: 'smolserv'
+        DOCKERFILE_PATH: '${GITHUB_WORKSPACE}/smol/smol/Dockerfile'
+        BUILD_CONTEXT: '${GITHUB_WORKSPACE}/smol/smol/'
         branch_tag: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
