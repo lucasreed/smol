@@ -50,3 +50,28 @@ jobs:
           args: release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Copy Repo Files
+      uses: actions/checkout@master
+
+    - name: Publish Docker Image to GPR
+      uses: machine-learning-apps/gpr-docker-publish@master
+      id: docker
+      with:
+        IMAGE_NAME: 'smol'
+        DOCKERFILE_PATH: 'Dockerfile'
+        BUILD_CONTEXT: '/'
+        tag: ${GITHUB_REF##*/}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Show outputs of previous step
+      run: |
+        echo "The name:tag of the Docker Image is: $VAR1"
+        echo "The docker image is hosted at $VAR2"
+      env:
+        VAR1: ${{ steps.docker.outputs.IMAGE_SHA_NAME }}
+        VAR2: ${{ steps.docker.outputs.IMAGE_URL }}
