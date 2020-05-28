@@ -36,13 +36,18 @@ jobs:
     - name: Copy Repo Files
       uses: actions/checkout@v2
 
+    - name: debug
+      run: |
+        ls -l
+        echo "workspace is: ${GITHUB_WORKSPACE}"
+
     - name: Publish Docker Image to GPR
       uses: machine-learning-apps/gpr-docker-publish@master
       id: docker
       with:
         IMAGE_NAME: 'smolserv'
-        DOCKERFILE_PATH: '${GITHUB_WORKSPACE}/smol/smol/Dockerfile'
-        BUILD_CONTEXT: '${GITHUB_WORKSPACE}/smol/smol/'
+        DOCKERFILE_PATH: '${GITHUB_WORKSPACE}/smol/Dockerfile'
+        BUILD_CONTEXT: '${GITHUB_WORKSPACE}/smol/'
         branch_tag: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
