@@ -1,4 +1,4 @@
-name: go test & lint
+name: testing
 on:
   push:
     branches:
@@ -33,16 +33,10 @@ jobs:
     needs: test_lint
     steps:
 
-    - name: Copy Repo Files
+    - name: checkout code
       uses: actions/checkout@v2
 
-    - name: debug
-      run: |
-        ls -l
-        pwd
-        echo "workspace is: ${GITHUB_WORKSPACE}"
-
-    - name: Publish Docker Image to GPR
+    - name: publish image
       uses: machine-learning-apps/gpr-docker-publish@master
       id: docker
       with:
@@ -53,7 +47,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Show outputs of previous step
+    - name: outputs
       run: |
         echo "The name:tag of the Docker Image is: $VAR1"
         echo "The docker image is hosted at $VAR2"
