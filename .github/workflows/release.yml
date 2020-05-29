@@ -1,4 +1,4 @@
-name: goreleaser
+name: tagged version release
 on:
   push:
     tags:
@@ -9,9 +9,8 @@ jobs:
     name: test & lint
     runs-on: ubuntu-latest
     steps:
-
       - name: set up go 1.14
-        uses: actions/setup-go@v1
+        uses: actions/setup-go@v2
         with:
           go-version: 1.14
         id: go
@@ -31,22 +30,40 @@ jobs:
     needs: test_lint
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: checkout code
         uses: actions/checkout@v2
-      -
-        name: Unshallow
+
+      - name: unshallow
         run: git fetch --prune --unshallow
-      -
-        name: Set up Go
+
+      - name: setup go
         uses: actions/setup-go@v2
         with:
           go-version: 1.14
-      -
-        name: Run GoReleaser
+
+      - name: run goreleaser
         uses: goreleaser/goreleaser-action@v2
         with:
           version: latest
           args: release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    needs: test_lint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: get release version
+      id: get_version
+      run: echo ::set-env name=VERSION::$(echo ${GITHUB_REF##*/})
+    - name: publish to registry
+      uses: elgohr/Publish-Docker-Github-Action@master
+      env:
+        COMMIT: ${{ env.GITHUB_SHA }}
+      with:
+        name: lucasreed/smol/smolserv
+        registry: docker.pkg.github.com
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        tags: "${{ env.VERSION }},${{ env.GITHUB_SHA }}"

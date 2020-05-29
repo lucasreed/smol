@@ -47,8 +47,8 @@ func (s *Store) Open() error {
 	}
 	s.DB = db
 
-	if err := db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte(bucketName))
+	if err = db.Update(func(tx *bolt.Tx) error {
+		_, err = tx.CreateBucketIfNotExists([]byte(bucketName))
 		if err != nil {
 			return fmt.Errorf("[boltdb] error creating bucket: %s", err)
 		}
