@@ -1,4 +1,5 @@
 REDIS_NAME ?= redis-smolserv
+MYSQL_NAME ?= mysql-smolserv
 DOCKER_RUN_NAME ?= smol
 SMOL_IMAGE ?= smol
 SMOL_TAG ?= latest
@@ -11,7 +12,7 @@ all: lint test build
 
 run: build serve
 
-clean: build-clean redis-clean boltdb-clean
+clean: build-clean redis-clean boltdb-clean mysql-clean
 
 docker: docker-build docker-run
 
@@ -28,7 +29,10 @@ build:
 	go build -ldflags "-X main.version=$(VERSION) -X main.commit=$(COMMIT) -s -w" -v -o smolserv ./cmd/smolserv/
 
 redis:
-	docker run --name ${REDIS_NAME} -d -p 6379:6379 redis:5.0.7-buster
+	docker run --rm --name ${REDIS_NAME} -d -p 6379:6379 redis:5.0.7-buster
+
+mysql:
+	docker run --rm -d --name ${MYSQL_NAME} -p 3306:3306 -e MYSQL_ROOT_PASSWORD=pw -e MYSQL_DATABASE=smol -e MYSQL_USER=smol -e MYSQL_PASSWORD=smol mysql:latest
 
 docker-build:
 	docker build --cache-from ${SMOL_DOCKER_FULL} -t ${SMOL_DOCKER_FULL} .
@@ -42,7 +46,9 @@ build-clean:
 
 redis-clean:
 	-@docker stop ${REDIS_NAME} 2>/dev/null || true
-	-@docker rm ${REDIS_NAME} 2>/dev/null || true
 
 boltdb-clean:
 	-@rm ./boltdb 2>/dev/null || true
+
+mysql-clean:
+	-@docker stop ${MYSQL_NAME} 2>/dev/null || true
