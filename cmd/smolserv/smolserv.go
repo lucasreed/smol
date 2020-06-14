@@ -97,8 +97,6 @@ func setupStorage() (data.StorageReadWrite, error) {
 		}
 		store = redisStore
 	case "mysql":
-		c := conf
-		fmt.Println(c)
 		mysqlStore := mysql.NewStore(conf.MysqlHost, conf.MysqlPort, conf.MysqlUser, conf.MysqlPassword, conf.MysqlDatabase)
 		err := mysqlStore.Open()
 		if err != nil {
