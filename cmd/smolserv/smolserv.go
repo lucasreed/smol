@@ -18,20 +18,31 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/kelseyhightower/envconfig"
 	"github.com/spf13/cobra"
 
 	"github.com/lucasreed/smol/pkg/app"
 	"github.com/lucasreed/smol/pkg/data"
 	"github.com/lucasreed/smol/pkg/storage/boltdb"
+	"github.com/lucasreed/smol/pkg/storage/mysql"
 	"github.com/lucasreed/smol/pkg/storage/rediscache"
 )
 
+type Config struct {
+	ListenIp      string `default:"0.0.0.0"`
+	ListenPort    string `default:"8080"`
+	BoltdbPath    string `default:"./boltdb"`
+	MysqlDatabase string `default:"smol"`
+	MysqlHost     string `default:"localhost"`
+	MysqlPort     string `default:"3306"`
+	MysqlUser     string `default:"smol"`
+	MysqlPassword string `default:"smol"`
+	RedisHost     string `default:"localhost"`
+	RedisPort     string `default:"6379"`
+}
+
 var (
-	boltdbPath  string
-	listen      string
-	listenPort  string
-	redisHost   string
-	redisPort   string
+	conf        Config
 	storageType string
 	version     = "development"
 	commit      = "n/a"
@@ -39,24 +50,22 @@ var (
 
 func init() {
 	rootCmd.AddCommand(versionCmd)
-	rootCmd.Flags().StringVarP(&listen, "listen-ip", "i", "0.0.0.0", "IP to listen on")
-	rootCmd.Flags().StringVarP(&listenPort, "listen-port", "p", "8080", "port to listen on")
 	rootCmd.Flags().StringVar(&storageType, "storage", "boltdb", "What storage backend to use. Valid options: redis, boltdb")
-	rootCmd.Flags().StringVar(&boltdbPath, "boltdb-path", "./boltdb", "location of boltdb file")
-	rootCmd.Flags().StringVar(&redisHost, "redis-host", "localhost", "hostname/IP of redis")
-	rootCmd.Flags().StringVar(&redisPort, "redis-port", "6379", "port redis is listening on")
 }
 
 var rootCmd = &cobra.Command{
 	Use:   "smolserv",
 	Short: "smolserv makes urls smol",
 	Long:  `A simple url shortener API written in go`,
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		return envconfig.Process("smol", &conf)
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		storage, err := setupStorage()
 		if err != nil {
 			log.Fatal("error setting up storage - ", err)
 		}
-		app := app.NewServer(storage, listen+":"+listenPort)
+		app := app.NewServer(storage, conf.ListenIp+":"+conf.ListenPort)
 		app.Run()
 	},
 }
@@ -74,19 +83,26 @@ func setupStorage() (data.StorageReadWrite, error) {
 	var store data.StorageReadWrite
 	switch storageType {
 	case "boltdb":
-		bolt := boltdb.NewStore(boltdbPath)
+		bolt := boltdb.NewStore(conf.BoltdbPath)
 		err := bolt.Open()
 		if err != nil {
 			return nil, err
 		}
 		store = bolt
 	case "redis":
-		redisStore := rediscache.NewStore(redisHost, redisPort)
+		redisStore := rediscache.NewStore(conf.RedisHost, conf.RedisPort)
 		err := redisStore.Open()
 		if err != nil {
 			return nil, err
 		}
 		store = redisStore
+	case "mysql":
+		mysqlStore := mysql.NewStore(conf.MysqlHost, conf.MysqlPort, conf.MysqlUser, conf.MysqlPassword, conf.MysqlDatabase)
+		err := mysqlStore.Open()
+		if err != nil {
+			return nil, err
+		}
+		store = mysqlStore
 	default:
 		return nil, fmt.Errorf("not a valid storage backend: %v", storageType)
 	}

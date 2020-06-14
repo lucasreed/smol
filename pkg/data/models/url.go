@@ -19,11 +19,14 @@ import (
 	"strings"
 
 	"github.com/asaskevich/govalidator"
+	"github.com/jinzhu/gorm"
 )
 
 type URL struct {
-	Destination string
-	ShortCode   string `gorm:"type:varchar(7), primary_key"`
+	gorm.Model
+	Destination string `gorm:"index"`
+	ShortCode   string `gorm:"type:varchar(7);index"`
+	User        string `gorm:"index"`
 }
 
 func (urlPath *URL) ValidateURL() bool {
